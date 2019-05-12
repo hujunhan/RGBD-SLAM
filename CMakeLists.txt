@@ -42,10 +42,11 @@ set(INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/opencv-3.4/modules/videostab/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/opencv-3.4/modules/tracking/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/eigen
+        ${CMAKE_CURRENT_LIST_DIR}/third-party/sophus
 
         )
-file(GLOB SOURCE ${CMAKE_CURRENT_LIST_DIR}/useEigen.cpp
-        )
+
+
 # Link the file
 file(GLOB LINK_DIRS ${CMAKE_CURRENT_LIST_DIR}/lib/x64/realsense2.lib
         ${CMAKE_CURRENT_LIST_DIR}/lib/x64/glfw-imgui.lib
@@ -72,8 +73,10 @@ file(GLOB LINK_DIRS ${CMAKE_CURRENT_LIST_DIR}/lib/x64/realsense2.lib
         )
 # 添加头文件
 include_directories(${INCLUDE_DIRS})
-
-
+find_package( Sophus REQUIRED )
+include_directories( ${Sophus_INCLUDE_DIRS} )
+##设置源文件
+file(GLOB SOURCE doc/useSophus.cpp)
 # 添加源文件
 add_executable(${PROJ_NAME} ${SOURCE} )
 
@@ -86,4 +89,5 @@ endif ( MSVC )
 target_link_libraries(${PROJ_NAME} ${LINK_DIRS}
         glu32.lib
         opengl32.lib
+        ${Sophus_LIBRARIES}
         )

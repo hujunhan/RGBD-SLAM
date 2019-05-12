@@ -3,3 +3,4 @@ bin/
 cmake-build-debug/
 .idea/
 third-party/eigen/
+third-party/sophus/
