@@ -76,7 +76,7 @@ include_directories(${INCLUDE_DIRS})
 find_package( Sophus REQUIRED )
 include_directories( ${Sophus_INCLUDE_DIRS} )
 ##设置源文件
-file(GLOB SOURCE doc/useOpenCV.cpp)
+file(GLOB SOURCE doc/testAlign.cpp)
 # 添加源文件
 add_executable(${PROJ_NAME} ${SOURCE} )
 
