@@ -15,6 +15,8 @@ set(CMAKE_CXX_STANDARD 11)
 # Using OpenCV and other third-party library
 set(INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
         ${CMAKE_CURRENT_LIST_DIR}/include/helper
+        ${CMAKE_CURRENT_LIST_DIR}/include/librealsense2
+        ${CMAKE_CURRENT_LIST_DIR}/include/myslam
         ${CMAKE_CURRENT_LIST_DIR}/third-party/glfw-imgui/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/
         ${CMAKE_CURRENT_LIST_DIR}/third-party/pthread
@@ -39,9 +41,10 @@ set(INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/opencv-3.4/modules/stitching/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/opencv-3.4/modules/videostab/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/opencv-3.4/modules/tracking/include
+        ${CMAKE_CURRENT_LIST_DIR}/third-party/eigen
 
         )
-file(GLOB SOURCE ${CMAKE_CURRENT_LIST_DIR}/pointcloud.cpp
+file(GLOB SOURCE ${CMAKE_CURRENT_LIST_DIR}/useEigen.cpp
         )
 # Link the file
 file(GLOB LINK_DIRS ${CMAKE_CURRENT_LIST_DIR}/lib/x64/realsense2.lib

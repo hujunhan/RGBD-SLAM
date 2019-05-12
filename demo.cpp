@@ -3,11 +3,13 @@
 
 #include <librealsense2/rs.hpp> // Include RealSense Cross Platform API
 #include <iostream>             // for cout
-
+#include "Camera.h"
+#include "Eigen/core"
 // Hello RealSense example demonstrates the basics of connecting to a RealSense device
 // and taking advantage of depth data
 int main(int argc, char * argv[]) try
 {
+    Eigen::Matrix<float, 2, 3> matrix_23;
     // Create a Pipeline - this serves as a top-level API for streaming and processing frames
     rs2::pipeline p;
     std::cout<<"Hello!"<<std::endl;
