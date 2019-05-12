@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 # Using OpenCV and other third-party library
 set(INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
-        ${CMAKE_CURRENT_LIST_DIR}/samples
+        ${CMAKE_CURRENT_LIST_DIR}/include/helper
         ${CMAKE_CURRENT_LIST_DIR}/third-party/glfw-imgui/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/
         ${CMAKE_CURRENT_LIST_DIR}/third-party/pthread
@@ -39,8 +39,9 @@ set(INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/opencv-3.4/modules/stitching/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/opencv-3.4/modules/videostab/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/opencv-3.4/modules/tracking/include
+
         )
-file(GLOB SOURCE ${CMAKE_CURRENT_LIST_DIR}/demo.cpp
+file(GLOB SOURCE ${CMAKE_CURRENT_LIST_DIR}/pointcloud.cpp
         )
 # Link the file
 file(GLOB LINK_DIRS ${CMAKE_CURRENT_LIST_DIR}/lib/x64/realsense2.lib
@@ -71,7 +72,8 @@ include_directories(${INCLUDE_DIRS})
 
 
 # 添加源文件
-add_executable(${PROJ_NAME} ${SOURCE})
+add_executable(${PROJ_NAME} ${SOURCE} )
+
 #add_executable(RGBD_SLAM main.cpp src/Camera.cpp include/myslam/Camera.h include/myslam/common_include.h)
 if ( MSVC )
     set_target_properties( ${PROJ_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin )
