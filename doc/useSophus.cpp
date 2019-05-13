@@ -9,52 +9,52 @@ using namespace std;
 #include "sophus/se3.hpp"
 
 int main( int argc, char** argv ) {
-    // æ²¿Zè½´è½¬90åº¦çš„æ—‹è½¬çŸ©é˜µ
+    // ÑØZÖá×ª90¶ÈµÄĞı×ª¾ØÕó
 
     Eigen::Matrix3d R = Eigen::AngleAxisd(3.1415926 / 2, Eigen::Vector3d(0, 0, 1)).toRotationMatrix();
-    Sophus::SO3<double> SO3_R(R);               // Sophus::SO(3)å¯ä»¥ç›´æ¥ä»æ—‹è½¬çŸ©é˜µæ„é€ 
-//  Sophus::SO3 SO3_v( 0, 0, M_PI/2 );  // äº¦å¯ä»æ—‹è½¬å‘é‡æ„é€  
-    Eigen::Quaterniond q(R);            // æˆ–è€…å››å…ƒæ•°
+    Sophus::SO3<double> SO3_R(R);               // Sophus::SO(3)¿ÉÒÔÖ±½Ó´ÓĞı×ª¾ØÕó¹¹Ôì
+//  Sophus::SO3 SO3_v( 0, 0, M_PI/2 );  // Òà¿É´ÓĞı×ªÏòÁ¿¹¹Ôì 
+    Eigen::Quaterniond q(R);            // »òÕßËÄÔªÊı
     Sophus::SO3<double> SO3_q(q);
-    // ä¸Šè¿°è¡¨è¾¾æ–¹å¼éƒ½æ˜¯ç­‰ä»·çš„
-    // è¾“å‡ºSO(3)æ—¶ï¼Œä»¥so(3)å½¢å¼è¾“å‡º
+    // ÉÏÊö±í´ï·½Ê½¶¼ÊÇµÈ¼ÛµÄ
+    // Êä³öSO(3)Ê±£¬ÒÔso(3)ĞÎÊ½Êä³ö
     cout << "SO(3) from matrix: " << SO3_R.log() << endl;
 //  cout<<"SO(3) from vector: "<<SO3_v<<endl;
     cout << "SO(3) from quaternion :" << SO3_q.log() << endl;
 
-    // ä½¿ç”¨å¯¹æ•°æ˜ å°„è·å¾—å®ƒçš„æä»£æ•°
+    // Ê¹ÓÃ¶ÔÊıÓ³Éä»ñµÃËüµÄÀî´úÊı
     Eigen::Vector3d so3 = SO3_R.log();
     cout << "so3 = " << so3.transpose() << endl;
-    // hat ä¸ºå‘é‡åˆ°åå¯¹ç§°çŸ©é˜µ
+    // hat ÎªÏòÁ¿µ½·´¶Ô³Æ¾ØÕó
     cout << "so3 hat=\n" << Sophus::SO3<double>::hat(so3) << endl;
-    // ç›¸å¯¹çš„ï¼Œveeä¸ºåå¯¹ç§°åˆ°å‘é‡
+    // Ïà¶ÔµÄ£¬veeÎª·´¶Ô³Æµ½ÏòÁ¿
     cout << "so3 hat vee= " << Sophus::SO3<double>::vee(Sophus::SO3<double>::hat(so3)).transpose()
-         << endl; // transposeçº¯ç²¹æ˜¯ä¸ºäº†è¾“å‡ºç¾è§‚ä¸€äº›
+         << endl; // transpose´¿´âÊÇÎªÁËÊä³öÃÀ¹ÛÒ»Ğ©
 
-    // å¢é‡æ‰°åŠ¨æ¨¡å‹çš„æ›´æ–°
-    Eigen::Vector3d update_so3(1e-4, 0, 0); //å‡è®¾æ›´æ–°é‡ä¸ºè¿™ä¹ˆå¤š
+    // ÔöÁ¿ÈÅ¶¯Ä£ĞÍµÄ¸üĞÂ
+    Eigen::Vector3d update_so3(1e-4, 0, 0); //¼ÙÉè¸üĞÂÁ¿ÎªÕâÃ´¶à
     Sophus::SO3<double> SO3_updated = Sophus::SO3<double>::exp(update_so3) * SO3_R;
     cout << "SO3 updated = " << SO3_updated.log() << endl;
 
-    /********************èŒèŒçš„åˆ†å‰²çº¿*****************************/
-    cout << "************æˆ‘æ˜¯åˆ†å‰²çº¿*************" << endl;
-    // å¯¹SE(3)æ“ä½œå¤§åŒå°å¼‚
-    Eigen::Vector3d t(1, 0, 0);           // æ²¿Xè½´å¹³ç§»1
-    Sophus::SE3<double> SE3_Rt(R, t);           // ä»R,tæ„é€ SE(3)
-    Sophus::SE3<double> SE3_qt(q, t);            // ä»q,tæ„é€ SE(3)
+    /********************ÃÈÃÈµÄ·Ö¸îÏß*****************************/
+    cout << "************ÎÒÊÇ·Ö¸îÏß*************" << endl;
+    // ¶ÔSE(3)²Ù×÷´óÍ¬Ğ¡Òì
+    Eigen::Vector3d t(1, 0, 0);           // ÑØXÖáÆ½ÒÆ1
+    Sophus::SE3<double> SE3_Rt(R, t);           // ´ÓR,t¹¹ÔìSE(3)
+    Sophus::SE3<double> SE3_qt(q, t);            // ´Óq,t¹¹ÔìSE(3)
     cout << "SE3 from R,t= " << endl << SE3_Rt.log() << endl;
     cout << "SE3 from q,t= " << endl << SE3_qt.log() << endl;
-    // æä»£æ•°se(3) æ˜¯ä¸€ä¸ªå…­ç»´å‘é‡ï¼Œæ–¹ä¾¿èµ·è§å…ˆtypedefä¸€ä¸‹
+    // Àî´úÊıse(3) ÊÇÒ»¸öÁùÎ¬ÏòÁ¿£¬·½±ãÆğ¼ûÏÈtypedefÒ»ÏÂ
     typedef Eigen::Matrix<double, 6, 1> Vector6d;
     Vector6d se3 = SE3_Rt.log();
     cout << "se3 = " << se3.transpose() << endl;
-    // è§‚å¯Ÿè¾“å‡ºï¼Œä¼šå‘ç°åœ¨Sophusä¸­ï¼Œse(3)çš„å¹³ç§»åœ¨å‰ï¼Œæ—‹è½¬åœ¨å.
-    // åŒæ ·çš„ï¼Œæœ‰hatå’Œveeä¸¤ä¸ªç®—ç¬¦
+    // ¹Û²ìÊä³ö£¬»á·¢ÏÖÔÚSophusÖĞ£¬se(3)µÄÆ½ÒÆÔÚÇ°£¬Ğı×ªÔÚºó.
+    // Í¬ÑùµÄ£¬ÓĞhatºÍveeÁ½¸öËã·û
     cout << "se3 hat = " << endl << Sophus::SE3<double>::hat(se3) << endl;
     cout << "se3 hat vee = " << Sophus::SE3<double>::vee(Sophus::SE3<double>::hat(se3)).transpose() << endl;
 
-    // æœ€åï¼Œæ¼”ç¤ºä¸€ä¸‹æ›´æ–°
-//    Vector6d update_se3; //æ›´æ–°é‡
+    // ×îºó£¬ÑİÊ¾Ò»ÏÂ¸üĞÂ
+//    Vector6d update_se3; //¸üĞÂÁ¿
 //    update_se3.setZero();
 //    update_se3(0, 0) = 1e-4d;
 //    Sophus::SE3<double> SE3_updated = Sophus::SE3<double>::exp(update_se3) * SE3_Rt;
