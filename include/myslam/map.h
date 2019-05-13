@@ -17,34 +17,27 @@
  *
  */
 
+#ifndef MAP_H
+#define MAP_H
 
-#ifndef COMMON_INCLUDE_H
-#define COMMON_INCLUDE_H
+#include "myslam/common_include.h"
+#include "myslam/frame.h"
+#include "myslam/mappoint.h"
 
-// define the commonly included file to avoid a long include list
-// for Eigen
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-using Eigen::Vector2d;
-using Eigen::Vector3d;
+namespace myslam
+{
+class Map
+{
+public:
+    typedef shared_ptr<Map> Ptr;
+    unordered_map<unsigned long, MapPoint::Ptr >  map_points_;        // all landmarks
+    unordered_map<unsigned long, Frame::Ptr >     keyframes_;         // all key-frames
 
-// for Sophus
-#include <sophus/se3.hpp>
-using Sophus::SE3;
+    Map() {}
+    
+    void insertKeyFrame( Frame::Ptr frame );
+    void insertMapPoint( MapPoint::Ptr map_point );
+};
+}
 
-// for cv
-#include <opencv2/core/core.hpp>
-using cv::Mat;
-
-// std 
-#include <vector>
-#include <list>
-#include <memory>
-#include <string>
-#include <iostream>
-#include <set>
-#include <unordered_map>
-#include <map>
-
-using namespace std; 
-#endif
+#endif // MAP_H

@@ -24,10 +24,11 @@ int main(void) try
 
     const int w = color.as<rs2::video_frame>().get_width();
     const int h = color.as<rs2::video_frame>().get_height();
-    Mat image(Size(w, h), CV_8UC3, (void*)color.get_data(), Mat::AUTO_STEP);
-    namedWindow("Display Image", WINDOW_AUTOSIZE );
-    imshow("Display Image", image);
-    std::cout<<w<<std::endl;
+    Mat image(Size(w, h), CV_8UC3, (void*)depth.get_data(), Mat::AUTO_STEP);
+//    namedWindow("Display Image", WINDOW_AUTOSIZE );
+//    imshow("Display Image", image);
+//    std::cout<<w<<std::endl;
+    std::cout<<"width: "<<image.cols<<" height:"<<image.rows<<" channel: "<<image.channels()<<std::endl;
     waitKey(0);
 
     return 0;

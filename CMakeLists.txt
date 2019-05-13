@@ -73,10 +73,14 @@ file(GLOB LINK_DIRS ${CMAKE_CURRENT_LIST_DIR}/lib/x64/realsense2.lib
         )
 # 添加头文件
 include_directories(${INCLUDE_DIRS})
-find_package( Sophus REQUIRED )
-include_directories( ${Sophus_INCLUDE_DIRS} )
+
 ##设置源文件
-file(GLOB SOURCE doc/testAlign.cpp)
+file(GLOB SOURCE doc/useSophus.cpp
+        src/myslam/camera.cpp
+        src/myslam/config.cpp
+        src/myslam/frame.cpp
+        src/myslam/map.cpp
+        src/myslam/mappoint.cpp)
 # 添加源文件
 add_executable(${PROJ_NAME} ${SOURCE} )
 
