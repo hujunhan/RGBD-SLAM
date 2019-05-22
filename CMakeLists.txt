@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.14)
 SET(PROJ_NAME "RGBD-SLAM")
-project (${PROJ_NAME})
+project(${PROJ_NAME})
 
 set(ThirdParty "${CMAKE_CURRENT_LIST_DIR}/third-party")
 
 
 # The version number.
-set (Tutorial_VERSION_MAJOR 1)
-set (Tutorial_VERSION_MINOR 0)
+set(Tutorial_VERSION_MAJOR 1)
+set(Tutorial_VERSION_MINOR 0)
 
 # Using C++ 11
 set(CMAKE_CXX_STANDARD 11)
@@ -37,23 +37,26 @@ file(GLOB LINK_DIRS ${CMAKE_CURRENT_LIST_DIR}/lib/realsense2.lib
 include_directories(${INCLUDE_DIRS})
 
 ##设置源文件
-file(GLOB SOURCE doc/useOpenCV.cpp
+file(GLOB SOURCE test/testVO.cpp
         src/myslam/camera.cpp
         src/myslam/config.cpp
         src/myslam/frame.cpp
         src/myslam/map.cpp
-        src/myslam/mappoint.cpp)
+        src/myslam/mappoint.cpp
+#        src/myslam/visual_odometry.cpp
+        )
 # 添加源文件
-add_executable(${PROJ_NAME} ${SOURCE} )
+add_executable(${PROJ_NAME} ${SOURCE})
 
 #add_executable(RGBD_SLAM main.cpp src/Camera.cpp include/myslam/Camera.h include/myslam/common_include.h)
-if ( MSVC )
-    set_target_properties( ${PROJ_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin )
-    set_target_properties( ${PROJ_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_LIST_DIR}/bin )
-    set_target_properties( ${PROJ_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_LIST_DIR}/bin )
-endif ( MSVC )
+if (MSVC)
+    set_target_properties(${PROJ_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
+    set_target_properties(${PROJ_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_LIST_DIR}/bin)
+    set_target_properties(${PROJ_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_LIST_DIR}/bin)
+endif (MSVC)
 target_link_libraries(${PROJ_NAME} ${LINK_DIRS}
         glu32.lib
         opengl32.lib
         ${Sophus_LIBRARIES}
+        #        myslam
         )

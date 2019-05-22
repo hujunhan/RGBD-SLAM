@@ -27,17 +27,15 @@
 
 // This example assumes camera with depth and color
 // streams, and direction lets you define the target stream
-enum class direction
-{
+enum class direction {
     to_depth,
     to_color
 };
 
 // Forward definition of UI rendering, implemented below
-void render_slider(rect location, float* alpha, direction* dir);
+void render_slider(rect location, float *alpha, direction *dir);
 
-int main(int argc, char * argv[]) try
-{
+int main(int argc, char *argv[]) try {
     // Create and initialize GUI related objects
     window app(1280, 720, "RealSense Align Example"); // Simple window handling
     ImGui_ImplGlfw_Init(app, false);      // ImGui library intializition
@@ -58,21 +56,18 @@ int main(int argc, char * argv[]) try
     rs2::align align_to_depth(RS2_STREAM_DEPTH);
     rs2::align align_to_color(RS2_STREAM_COLOR);
 
-    float       alpha = 0.5f;               // Transparancy coefficient
-    direction   dir = direction::to_depth;  // Alignment direction
+    float alpha = 0.5f;               // Transparancy coefficient
+    direction dir = direction::to_depth;  // Alignment direction
 
     while (app) // Application still alive?
     {
         // Using the align object, we block the application until a frameset is available
         rs2::frameset frameset = pipe.wait_for_frames();
 
-        if (dir == direction::to_depth)
-        {
+        if (dir == direction::to_depth) {
             // Align all frames to depth viewport
             frameset = align_to_depth.process(frameset);
-        }
-        else
-        {
+        } else {
             // Align all frames to color viewport
             frameset = align_to_color.process(frameset);
         }
@@ -86,19 +81,16 @@ int main(int argc, char * argv[]) try
         // Use the Alpha channel for blending
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        if (dir == direction::to_depth)
-        {
+        if (dir == direction::to_depth) {
             // When aligning to depth, first render depth image
             // and then overlay color on top with transparancy
-            depth_image.render(colorized_depth, { 0, 0, app.width(), app.height() });
-            color_image.render(color, { 0, 0, app.width(), app.height() }, alpha);
-        }
-        else
-        {
+            depth_image.render(colorized_depth, {0, 0, app.width(), app.height()});
+            color_image.render(color, {0, 0, app.width(), app.height()}, alpha);
+        } else {
             // When aligning to color, first render color image
             // and then overlay depth image on top
-            color_image.render(color, { 0, 0, app.width(), app.height() });
-            depth_image.render(colorized_depth, { 0, 0, app.width(), app.height() }, 1 - alpha);
+            color_image.render(color, {0, 0, app.width(), app.height()});
+            depth_image.render(colorized_depth, {0, 0, app.width(), app.height()}, 1 - alpha);
         }
 
         glColor4f(1.f, 1.f, 1.f, 1.f);
@@ -106,25 +98,23 @@ int main(int argc, char * argv[]) try
 
         // Render the UI:
         ImGui_ImplGlfw_NewFrame(1);
-        render_slider({ 15.f, app.height() - 60, app.width() - 30, app.height() }, &alpha, &dir);
+        render_slider({15.f, app.height() - 60, app.width() - 30, app.height()}, &alpha, &dir);
         ImGui::Render();
     }
 
     return EXIT_SUCCESS;
 }
-catch (const rs2::error & e)
-{
-    std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
+catch (const rs2::error &e) {
+    std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    "
+              << e.what() << std::endl;
     return EXIT_FAILURE;
 }
-catch (const std::exception & e)
-{
+catch (const std::exception &e) {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
 }
 
-void render_slider(rect location, float* alpha, direction* dir)
-{
+void render_slider(rect location, float *alpha, direction *dir) {
     static const int flags = ImGuiWindowFlags_NoCollapse
                              | ImGuiWindowFlags_NoScrollbar
                              | ImGuiWindowFlags_NoSavedSettings
@@ -132,8 +122,8 @@ void render_slider(rect location, float* alpha, direction* dir)
                              | ImGuiWindowFlags_NoResize
                              | ImGuiWindowFlags_NoMove;
 
-    ImGui::SetNextWindowPos({ location.x, location.y });
-    ImGui::SetNextWindowSize({ location.w, location.h });
+    ImGui::SetNextWindowPos({location.x, location.y});
+    ImGui::SetNextWindowSize({location.w, location.h});
 
     // Render transparency slider:
     ImGui::Begin("slider", nullptr, flags);
@@ -147,14 +137,12 @@ void render_slider(rect location, float* alpha, direction* dir)
     bool to_depth = (*dir == direction::to_depth);
     bool to_color = (*dir == direction::to_color);
 
-    if (ImGui::Checkbox("Align To Depth", &to_depth))
-    {
+    if (ImGui::Checkbox("Align To Depth", &to_depth)) {
         *dir = to_depth ? direction::to_depth : direction::to_color;
     }
     ImGui::SameLine();
     ImGui::SetCursorPosX(location.w - 140);
-    if (ImGui::Checkbox("Align To Color", &to_color))
-    {
+    if (ImGui::Checkbox("Align To Color", &to_color)) {
         *dir = to_color ? direction::to_color : direction::to_depth;
     }
 

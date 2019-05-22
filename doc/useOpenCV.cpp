@@ -10,10 +10,10 @@ int main(void) try
     rs2::colorizer color_map;
     rs2::pipeline p;
     rs2::config cfg;
-
+    cfg.enable_stream(RS2_STREAM_COLOR, RS2_FORMAT_BGR8);
     p.start();
     rs2::frameset frames;
-    for(int i = 0; i < 30; i++)
+    for(int i = 0; i < 10; i++)
     {
         //Wait for all configured streams to produce a frame
         frames = p.wait_for_frames();
@@ -25,9 +25,11 @@ int main(void) try
     const int w = color.as<rs2::video_frame>().get_width();
     const int h = color.as<rs2::video_frame>().get_height();
     Mat image(Size(w, h), CV_8UC3, (void*)color.get_data(), Mat::AUTO_STEP);
+    Mat rgb;
+    cvtColor(image,rgb,COLOR_BGR2RGB);
     namedWindow("Display Image", WINDOW_AUTOSIZE );
-    imshow("Display Image", image);
-    std::cout<<w<<std::endl;
+    imshow("Display Image", rgb);
+    imwrite("../data/test/1.png",rgb);
     std::cout<<"width: "<<image.cols<<" height:"<<image.rows<<" channel: "<<image.channels()<<std::endl;
     waitKey(0);
 

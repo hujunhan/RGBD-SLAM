@@ -7,10 +7,9 @@
 #include <algorithm>            // std::min, std::max
 
 // Helper functions
-void register_glfw_callbacks(window& app, glfw_state& app_state);
+void register_glfw_callbacks(window &app, glfw_state &app_state);
 
-int main(int argc, char * argv[]) try
-{
+int main(int argc, char *argv[]) try {
     // Create a simple OpenGL window for rendering:
     window app(1280, 720, "RealSense Pointcloud Example");
     // Construct an object to manage view state
@@ -56,13 +55,12 @@ int main(int argc, char * argv[]) try
 
     return EXIT_SUCCESS;
 }
-catch (const rs2::error & e)
-{
-    std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
+catch (const rs2::error &e) {
+    std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    "
+              << e.what() << std::endl;
     return EXIT_FAILURE;
 }
-catch (const std::exception & e)
-{
+catch (const std::exception &e) {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
 }
