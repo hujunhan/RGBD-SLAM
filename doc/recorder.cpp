@@ -1,6 +1,8 @@
 //
-// Created by hu on 2019/5/12.
+// Created by hu on 2019/5/23.
 //
+
+#include<windows.h>
 #include "librealsense2/rs.hpp"
 #include "opencv2/opencv.hpp"
 #include "iostream"
@@ -13,8 +15,8 @@ int main(void) try {
     rs2::pipeline p;
     rs2::config cfg;
     //使用BRG8才能显示正常的颜色，因为OpenCV就是这样规定显示的
-    cfg.enable_stream(RS2_STREAM_COLOR, 640, 480, RS2_FORMAT_BGR8, 60);
-    cfg.enable_stream(RS2_STREAM_DEPTH, 640, 480, RS2_FORMAT_Z16, 60);
+    cfg.enable_stream(RS2_STREAM_COLOR, 640, 480, RS2_FORMAT_BGR8, 30);
+    cfg.enable_stream(RS2_STREAM_DEPTH, 640, 480, RS2_FORMAT_Z16, 30);
 
     auto profile = p.start(cfg);
 
@@ -37,23 +39,41 @@ int main(void) try {
 
     auto color = frames.get_color_frame();
     auto depth = frames.get_depth_frame();
+
     const int w = depth.as<rs2::video_frame>().get_width();
     const int h = depth.as<rs2::video_frame>().get_height();
-    Mat depth_image(Size(w, h), CV_16UC1, (void *) depth.get_data(), Mat::AUTO_STEP);
-    cout<<depth_image<<endl;
 
+    SYSTEMTIME sys;
+    int count=0;
     while (true)
     {
+        if(++count==100)
+            break;
         frames = p.wait_for_frames();
         auto depth = frames.get_depth_frame();
         auto color = frames.get_color_frame();
         Mat color_image(Size(w, h), CV_8UC3, (void *) color.get_data(), Mat::AUTO_STEP);
-        Mat depth_image(Size(w, h), CV_16U, (void *) depth.get_data(), Mat::AUTO_STEP);
-        namedWindow("Display Image", WINDOW_AUTOSIZE);
-        imshow("Display Image", depth_image);
-//        cout << "width: " << image.cols << " height:" << image.rows << " channel: " << image.channels() << endl;
-        if(waitKey(30)>0)
-            break;
+        Mat depth_image(Size(w, h), CV_16UC1, (void *) depth.get_data(), Mat::AUTO_STEP);
+
+        GetLocalTime(&sys);
+        stringstream path_depth;
+        stringstream path_color;
+        stringstream a;
+        path_color << "../data/dormitory/rgb/";
+        path_depth << "../data/dormitory/depth/" ;
+        a.fill('0');
+        a.width(2); a << sys.wMonth;
+        a.width(2); a << sys.wDay;
+        a.width(2); a << sys.wHour;
+        a.width(2); a << sys.wMinute;
+        a.width(2); a << sys.wSecond;
+        a.width(3); a << sys.wMilliseconds;
+        a << ".png";
+        path_color << a.str();
+        path_depth << a.str();
+        imwrite(path_depth.str(), depth_image);
+        imwrite(path_color.str(), color_image);
+
     }
     return 0;
 }

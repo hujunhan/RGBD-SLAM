@@ -17,8 +17,8 @@ int main ( int argc, char** argv )
 //        return 1;
 //    }
     //-- ∂¡»°ÕºœÒ
-    Mat img_1 = imread ("C:\\Users\\hu\\CLionProjects\\RGBD-SLAM\\doc\\image\\1.png");
-    Mat img_2 = imread ( "C:\\Users\\hu\\CLionProjects\\RGBD-SLAM\\doc\\image\\2.png");
+    Mat img_1 = imread ("C:\\Users\\hu\\CLionProjects\\RGBD-SLAM\\data\\dormitory\\rgb\\0522191735853.png");
+    Mat img_2 = imread ( "C:\\Users\\hu\\CLionProjects\\RGBD-SLAM\\data\\dormitory\\rgb\\0522191736757.png");
 
     //-- ≥ı ºªØ
     std::vector<KeyPoint> keypoints_1, keypoints_2;
