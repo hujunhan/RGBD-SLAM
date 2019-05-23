@@ -10,6 +10,15 @@
 using namespace cv;
 using namespace std;
 
+int64_t getCurrentTime() {
+	std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::system_clock::now().time_since_epoch()
+		);
+	int64_t ret_time = ms.count();
+	std::cout << ret_time << std::endl;
+	return ret_time;
+
+}
 int main(void) try {
     rs2::colorizer color_map;
     rs2::pipeline p;
@@ -43,7 +52,7 @@ int main(void) try {
     const int w = depth.as<rs2::video_frame>().get_width();
     const int h = depth.as<rs2::video_frame>().get_height();
 
-    SYSTEMTIME sys;
+    //SYSTEMTIME sys;
     int count=0;
     while (true)
     {
@@ -55,20 +64,21 @@ int main(void) try {
         Mat color_image(Size(w, h), CV_8UC3, (void *) color.get_data(), Mat::AUTO_STEP);
         Mat depth_image(Size(w, h), CV_16UC1, (void *) depth.get_data(), Mat::AUTO_STEP);
 
-        GetLocalTime(&sys);
+        //GetLocalTime(&sys);
         stringstream path_depth;
         stringstream path_color;
         stringstream a;
         path_color << "../data/dormitory/rgb/";
         path_depth << "../data/dormitory/depth/" ;
-        a.fill('0');
-        a.width(2); a << sys.wMonth;
-        a.width(2); a << sys.wDay;
-        a.width(2); a << sys.wHour;
-        a.width(2); a << sys.wMinute;
-        a.width(2); a << sys.wSecond;
-        a.width(3); a << sys.wMilliseconds;
-        a << ".png";
+		a << getCurrentTime();
+		//a.fill('0');
+        //a.width(2); a << sys.wMonth;
+        //a.width(2); a << sys.wDay;
+        //a.width(2); a << sys.wHour;
+        //a.width(2); a << sys.wMinute;
+        //a.width(2); a << sys.wSecond;
+        //a.width(3); a << sys.wMilliseconds;
+        //a << ".png";
         path_color << a.str();
         path_depth << a.str();
         imwrite(path_depth.str(), depth_image);
