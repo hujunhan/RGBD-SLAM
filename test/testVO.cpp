@@ -10,7 +10,7 @@
 #include "opencv2/datasets/slam_tumindoor.hpp"
 #include "iostream"
 #include "fstream"
-
+#include "yaml-cpp/yaml.h"
 #include "common_include.h"
 
 using namespace std;
@@ -36,10 +36,16 @@ void pose_estimation_3d3d(
 
 int main(void) {
 
-    string dataset_path = "../data/dormitory";
+    YAML::Node config = YAML::LoadFile("../config.yaml");
+
+    string dataset_path = config["test"]["dataset_path"].as<string>();
+
+    auto camera_name = config["test"]["camera"].as<string>();
+
+    auto camera_ins = config["camera"][camera_name]["instrinsic"];
 
     vector<string> rgb_file, depth_file;
-    ifstream fin(dataset_path + "/info.txt");
+    ifstream fin(dataset_path + "info.txt");
     if (!fin) {
         cout << "please generate the associate file called info.txt!" << endl;
         return 1;
@@ -78,10 +84,9 @@ int main(void) {
         find_feature_matches(img_1, img_2, keypoints_1, keypoints_2, matches);
 //        cout<<"一共找到了"<<matches.size() <<"组匹配点"<<endl;
 
-        //内参
-        //freiburg2
-//        Mat K = ( Mat_<double> ( 3,3 ) << 520.9, 0, 325.1, 0, 521.0, 249.7, 0, 0, 1 );
-        Mat K = (Mat_<double>(3, 3) << 615, 0, 318, 0, 615, 318, 0, 0, 1);
+        //相机内参
+        Mat K = (Mat_<double>(3, 3)
+                << camera_ins["fx"].as<double>(), 0, camera_ins["cx"].as<double>(), 0, camera_ins["fy"].as<double>(), camera_ins["cy"].as<double>(), 0, 0, 1);
         vector<Point3f> pts1, pts2;
         for (DMatch m:matches) {
             ushort d1 = depth_1.ptr<unsigned short>(int(keypoints_1[m.queryIdx].pt.y))[int(
@@ -92,8 +97,8 @@ int main(void) {
                 continue;
             Point2d p1 = pixel2cam(keypoints_1[m.queryIdx].pt, K);
             Point2d p2 = pixel2cam(keypoints_2[m.trainIdx].pt, K);
-            float dd1 = float(d1) / 1000.0;
-            float dd2 = float(d2) / 1000.0;
+            float dd1 = float(d1) / camera_ins["scale"].as<int>();
+            float dd2 = float(d2) / camera_ins["scale"].as<int>();
             pts1.push_back(Point3f(p1.x * dd1, p1.y * dd1, dd1));
             pts2.push_back(Point3f(p2.x * dd2, p2.y * dd2, dd2));
 //            cout<<"3d-3d pairs: "<<pts1.size() <<endl;
@@ -114,7 +119,7 @@ int main(void) {
 //    cout << s.str() << endl;
 //    cout << a.str() << endl;
 //    cout << "done";
-    fstream fout("../data/dormitory/traj.txt", ios::app);
+    fstream fout(dataset_path+"traj.txt", ios::app);
     for (size_t i = 0; i < t_traj.size(); i++) {
         auto m = t_traj[i];
         double x = m.at<double>(0, 0);
@@ -132,11 +137,6 @@ int main(void) {
     fout.close();
     return 0;
 }
-
-
-
-
-
 
 
 void find_feature_matches(const Mat &img_1, const Mat &img_2,

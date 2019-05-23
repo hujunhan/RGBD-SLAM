@@ -1,0 +1,22 @@
+test:
+  dataset_path: "../data/dormitory/" #with "/" at the end of the string
+  camera: realsense
+
+camera:
+  realsense:
+    instrinsic:
+      fx: 615.325
+      fy: 615.457
+      cx: 318.138
+      cy: 241.882
+      scale: 1000
+  freiburg:
+    instrinsic:
+      fx: 520.9
+      fy: 521.0
+      cx: 325.1
+      cy: 249.1
+      scale: 5000
+
+feature:
+  orb:

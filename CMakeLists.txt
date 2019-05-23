@@ -23,7 +23,7 @@ set(INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/opencv-4.1/
         ${CMAKE_CURRENT_LIST_DIR}/third-party/eigen
         ${CMAKE_CURRENT_LIST_DIR}/third-party/sophus
-
+        ${CMAKE_CURRENT_LIST_DIR}/third-party/ymal-cpp
         )
 
 
@@ -32,12 +32,13 @@ file(GLOB LINK_DIRS ${CMAKE_CURRENT_LIST_DIR}/lib/realsense2.lib
         ${CMAKE_CURRENT_LIST_DIR}/lib/glfw-imgui.lib
         ${CMAKE_CURRENT_LIST_DIR}/lib/opencv_world410.lib
         ${CMAKE_CURRENT_LIST_DIR}/lib/pthreadVC2.lib
+        ${CMAKE_CURRENT_LIST_DIR}/lib/libyaml-cppmd.lib
         )
 # 添加头文件
 include_directories(${INCLUDE_DIRS})
 
 ##设置源文件
-file(GLOB SOURCE test/testFrei.cpp
+file(GLOB SOURCE test/testVO.cpp
         src/myslam/camera.cpp
         src/myslam/config.cpp
         src/myslam/frame.cpp
