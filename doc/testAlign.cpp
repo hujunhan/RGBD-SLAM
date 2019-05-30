@@ -8,7 +8,8 @@
 #include "example.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
-
+#include "common_include.h"
+#include "fstream"
 /*
  This example introduces the concept of spatial stream alignment.
  For example usecase of alignment, please check out align-advanced and measure demos.
@@ -37,6 +38,23 @@ void render_slider(rect location, float *alpha, direction *dir);
 
 int main(int argc, char *argv[]) try {
     // Create and initialize GUI related objects
+    YAML::Node config = YAML::LoadFile("../config.yaml");
+    string dataset_path = config["test"]["dataset_path"].as<string>();
+    vector<string> rgb_file, depth_file;
+    ifstream fin(dataset_path + "info.txt");
+    if (!fin) {
+        cout << "please generate the associate file called info.txt!" << endl;
+        return 1;
+    }
+    while (!fin.eof()) {
+        string file_name;
+        fin >> file_name;
+//        cout<<"Img name: "<<file_name<<endl;
+        rgb_file.push_back(dataset_path + "/rgb/" + file_name);
+        depth_file.push_back(dataset_path + "/depth/" + file_name);
+    }
+    rgb_file.pop_back();
+    depth_file.pop_back();
     window app(1280, 720, "RealSense Align Example"); // Simple window handling
     ImGui_ImplGlfw_Init(app, false);      // ImGui library intializition
     rs2::colorizer c;                     // Helper to colorize depth images

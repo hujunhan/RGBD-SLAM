@@ -29,8 +29,8 @@ void pose_estimation_3d3d (
 );
 int main ( int argc, char** argv )
 {
-    Mat img_1 = imread("C:\\Users\\hu\\CLionProjects\\RGBD-SLAM\\data\\rgbd_dataset_freiburg1_xyz\\rgb\\1305031102.275326.png");
-    Mat img_2 = imread("C:\\Users\\hu\\CLionProjects\\RGBD-SLAM\\data\\rgbd_dataset_freiburg1_xyz\\rgb\\1305031102.311267.png");
+    Mat img_1 = imread("C:\\Users\\hu\\CLionProjects\\RGBD-SLAM\\data\\simulation\\rgb\\1558602020955.png");
+    Mat img_2 = imread("C:\\Users\\hu\\CLionProjects\\RGBD-SLAM\\data\\simulation\\rgb\\1558602021004.png");
 
     vector<KeyPoint> keypoints_1, keypoints_2;
     vector<DMatch> matches;
@@ -38,8 +38,8 @@ int main ( int argc, char** argv )
     cout<<"一共找到了"<<matches.size() <<"组匹配点"<<endl;
 
     // 建立3D点
-    Mat depth1 = imread("C:\\Users\\hu\\CLionProjects\\RGBD-SLAM\\data\\rgbd_dataset_freiburg1_xyz\\depth\\1305031102.262886.png");       // 深度图为16位无符号数，单通道图像
-    Mat depth2 = imread("C:\\Users\\hu\\CLionProjects\\RGBD-SLAM\\data\\rgbd_dataset_freiburg1_xyz\\depth\\1305031102.295279.png");       // 深度图为16位无符号数，单通道图像
+    Mat depth1 = imread("C:\\Users\\hu\\CLionProjects\\RGBD-SLAM\\data\\simulation\\depth\\1558602020955.png");       // 深度图为16位无符号数，单通道图像
+    Mat depth2 = imread("C:\\Users\\hu\\CLionProjects\\RGBD-SLAM\\data\\simulation\\depth\\1558602020955.png");       // 深度图为16位无符号数，单通道图像
 //    Mat K = ( Mat_<double> ( 3,3 ) << 520.9, 0, 325.1, 0, 521.0, 249.7, 0, 0, 1 );
     Mat K = ( Mat_<double> ( 3,3 ) << 517.3, 0, 318.6, 0, 516.5, 255.3, 0, 0, 1 );
     vector<Point3f> pts1, pts2;

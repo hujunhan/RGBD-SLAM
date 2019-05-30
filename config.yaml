@@ -1,7 +1,7 @@
 test:
-  dataset_path: "../data/dormitory/" #with "/" at the end of the string
+  dataset_path: "../data/simulation/" #with "/" at the end of the string
   camera: realsense
-
+  data_size: 2300
 camera:
   realsense:
     instrinsic:
@@ -18,5 +18,3 @@ camera:
       cy: 249.1
       scale: 5000
 
-feature:
-  orb:

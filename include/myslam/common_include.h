@@ -35,8 +35,12 @@ using Sophus::SE3;
 using Sophus::SO3;
 
 // for cv
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 using cv::Mat;
+
+// for yaml
+#include "yaml-cpp/yaml.h"
+
 
 // std 
 #include <vector>

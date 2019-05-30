@@ -18,18 +18,22 @@
  */
 
 #include "myslam/camera.h"
-#include "myslam/config.h"
-
+#include "yaml-cpp/yaml.h"
 namespace myslam
 {
 
-Camera::Camera()
+Camera::Camera(const std::string path)
 {
-    fx_ = Config::get<float>("camera.fx");
-    fy_ = Config::get<float>("camera.fy");
-    cx_ = Config::get<float>("camera.cx");
-    cy_ = Config::get<float>("camera.cy");
-    depth_scale_ = Config::get<float>("camera.depth_scale");
+    YAML::Node config = YAML::LoadFile(path);
+    auto camera_name = config["test"]["camera"].as<string>();
+    auto camera_ins = config["camera"][camera_name]["instrinsic"];
+    fx_ = camera_ins["fx"].as<float>();
+    fy_ = camera_ins["fy"].as<float>();
+    cx_ = camera_ins["cx"].as<float>();
+    cy_ = camera_ins["cy"].as<float>();
+    depth_scale_ = camera_ins["scale"].as<int>();
+    cout<<"Camera Initialized Done! Using Parameter of "<<camera_name<<endl;
+
 }
 
 Vector3d Camera::world2camera ( const Vector3d& p_w, const SE3<double>& T_c_w )

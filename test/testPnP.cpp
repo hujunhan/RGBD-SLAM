@@ -56,16 +56,6 @@ int main(void) {
         rgb_file.push_back(dataset_path + "/rgb/" + file_name);
         depth_file.push_back(dataset_path + "/depth/" + file_name);
     }
-    rgb_file.pop_back();
-    depth_file.pop_back();
-    cout << "The size of the dataset is " << rgb_file.size() << endl;
-    SYSTEMTIME sys;
-    GetLocalTime(&sys);
-    stringstream s;
-    s << sys.wSecond;
-    s << sys.wMilliseconds;
-
-    vector<Mat> t_traj;
     vector<SE3<double>> tj;
     Eigen::Matrix<double, 3, 3> R;
     R  << 1, 0, 0, 0, 1, 0, 0, 0, 1;
@@ -75,11 +65,22 @@ int main(void) {
     cout << "t: " << endl << t << endl;
     Sophus::SE3<double> SE3_Rt(R, t);   // Create Sophus SE3 from R and t
     tj.push_back(SE3_Rt);
+    rgb_file.pop_back();
+    depth_file.pop_back();
+    cout << "The size of the dataset is " << rgb_file.size() << endl;
+    SYSTEMTIME sys;
+    GetLocalTime(&sys);
+    stringstream s;
+    s << sys.wSecond;
+    s << sys.wMilliseconds;
+    vector<Mat> t_traj;
+    t_traj.push_back((Mat_<double>(3, 1) << 0, 0, 0));
+//    vector<Mat> t_traj;
     t_traj.push_back((Mat_<double>(3, 1) << 0, 0, 0));
     //防止溢出
     if (data_size > depth_file.size())
         data_size = depth_file.size();
-    for (size_t i = 0; i < (data_size - 1); i++) {
+    for (size_t i = 160; i < (data_size - 1); i++) {
 //       cout << "The " << i + 1 << " image path is " << depth_file[i] << endl;
 
         //load all the image we need
@@ -97,38 +98,33 @@ int main(void) {
         //相机内参
         Mat K = (Mat_<double>(3, 3)
                 << camera_ins["fx"].as<double>(), 0, camera_ins["cx"].as<double>(), 0, camera_ins["fy"].as<double>(), camera_ins["cy"].as<double>(), 0, 0, 1);
-        vector<Point3f> pts1, pts2;
+        vector<Point3f> pts_3d;
+        vector<Point2f> pts_2d;
         for (DMatch m:matches) {
-            ushort d1 = depth_1.ptr<unsigned short>(int(keypoints_1[m.queryIdx].pt.y))[int(
+            ushort d = depth_1.ptr<unsigned short>(int(keypoints_1[m.queryIdx].pt.y))[int(
                     keypoints_1[m.queryIdx].pt.x)];
-            ushort d2 = depth_2.ptr<unsigned short>(int(keypoints_2[m.trainIdx].pt.y))[int(
-                    keypoints_2[m.trainIdx].pt.x)];
-            if (d1 == 0 || d2 == 0)   // bad depth
+            if (d == 0)   // bad depth
                 continue;
+            float dd = d / 1000.0;
             Point2d p1 = pixel2cam(keypoints_1[m.queryIdx].pt, K);
-            Point2d p2 = pixel2cam(keypoints_2[m.trainIdx].pt, K);
-            float dd1 = float(d1) / camera_ins["scale"].as<int>();
-            float dd2 = float(d2) / camera_ins["scale"].as<int>();
-            pts1.push_back(Point3f(p1.x * dd1, p1.y * dd1, dd1));
-            pts2.push_back(Point3f(p2.x * dd2, p2.y * dd2, dd2));
-//            cout<<"3d-3d pairs: "<<pts1.size() <<endl;
-
+            pts_3d.push_back(Point3f(p1.x * dd, p1.y * dd, dd));
+            pts_2d.push_back(keypoints_2[m.trainIdx].pt);
         }
-        Mat R, t;
-        pose_estimation_3d3d(pts1, pts2, R, t);
-        Eigen::Matrix3d R_e;
-        R_e << R.at<double>(0, 0), R.at<double>(0, 1), R.at<double>(0, 2),
-                R.at<double>(1, 0), R.at<double>(1, 1), R.at<double>(1, 2),
-                R.at<double>(2, 0), R.at<double>(2, 1), R.at<double>(2, 2);
-        Sophus::SO3<double> SO3_R(R_e);
-        auto T=Sophus::SE3<double>(
-                SO3_R,
-                Vector3d(t.at<double>(0,0),t.at<double>(0,1),t.at<double>(0,2)));
-        tj.push_back(tj.back()*T);
-//            cout<<"ICP via SVD results: "<<endl;
-//            cout<<"R = "<<R<<endl;
-//        cout << "t = " << t << endl;
-//        cout << "traj = " << t_traj.back() << endl;
+
+
+        Mat r, t;
+        solvePnP(pts_3d, pts_2d, K, Mat(), r, t, false); // 调用OpenCV 的 PnP 求解，可选择EPNP，DLS等方法
+        Mat R;
+        cv::Rodrigues(r, R); // r为旋转向量形式，用Rodrigues公式转换为矩阵
+//        Eigen::Matrix3d R_e;
+//        R_e << R.at<double>(0, 0), R.at<double>(0, 1), R.at<double>(0, 2),
+//                R.at<double>(1, 0), R.at<double>(1, 1), R.at<double>(1, 2),
+//                R.at<double>(2, 0), R.at<double>(2, 1), R.at<double>(2, 2);
+//        Sophus::SO3<double> SO3_R(R_e);
+//        auto T=Sophus::SE3<double>(
+//                SO3_R,
+//                Vector3d(t.at<double>(0,0),t.at<double>(0,1),t.at<double>(0,2)));
+//        tj.push_back(tj.back()*T);
         t_traj.push_back(t + t_traj.back());
     }
 //    GetLocalTime(&sys);
@@ -139,16 +135,16 @@ int main(void) {
 //    cout << a.str() << endl;
 //    cout << "done";
     fstream fout(dataset_path + "traj.txt", ios::app);
-    for (size_t i = 0; i < tj.size(); i++) {
-        auto m = tj[i].translation();
-//        double x = m.at<double>(0, 0);
-//        double y = m.at<double>(0, 1);
+    for (size_t i = 0; i < t_traj.size(); i++) {
+        auto m = t_traj[i];
+        double x = m.at<double>(0, 0);
+        double y = m.at<double>(0, 1);
 //        double z = m.at<double>(0, 2);
 
 //        if((x*x+y*y+z*z)>0.1)
 //            continue;
-        fout << m.transpose() << "\t";
-//        fout << m(0,1) << "\t";
+        fout << x<< "\t";
+        fout <<y << "\t";
 //        fout << 0 << "\t";
 
         fout << std::endl;
@@ -252,11 +248,11 @@ void pose_estimation_3d3d(
 //    cout << "V=" << V << endl;
 
     Eigen::Matrix3d R_ = U * (V.transpose());
-//    R_(0, 2) = 0;
-//    R_(1, 2) = 0;
-//    R_(2, 2) = 1;
-//    R_(2, 1) = 0;
-//    R_(2, 0) = 0;
+    R_(0, 2) = 0;
+    R_(1, 2) = 0;
+    R_(2, 2) = 1;
+    R_(2, 1) = 0;
+    R_(2, 0) = 0;
     Eigen::Vector3d t_ = Eigen::Vector3d(p1.x, p1.y, p1.z) - R_ * Eigen::Vector3d(p2.x, p2.y, p2.z);
 
     // convert to cv::Mat
@@ -266,9 +262,9 @@ void pose_estimation_3d3d(
 //            R_(2, 0), R_(2, 1), R_(2, 2)
 //    );
     R = (Mat_<double>(3, 3) <<
-                            R_(0, 0), R_(0, 1), R_(0,2),
-            R_(1, 0), R_(1, 1), R_(1,2),
-            R_(2,0), R_(2,1), R_(2,2)
+                            R_(0, 0), R_(0, 1), 0,
+            R_(1, 0), R_(1, 1), 0,
+            0, 0, 1
     );
     t = (Mat_<double>(3, 1) << t_(0, 0), t_(1, 0), t_(2, 0));
 }

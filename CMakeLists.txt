@@ -4,6 +4,7 @@ project(${PROJ_NAME})
 
 set(ThirdParty "${CMAKE_CURRENT_LIST_DIR}/third-party")
 
+SET(CMAKE_BUILD_TYPE "Release")
 
 # The version number.
 set(Tutorial_VERSION_MAJOR 1)
@@ -38,9 +39,9 @@ file(GLOB LINK_DIRS ${CMAKE_CURRENT_LIST_DIR}/lib/realsense2.lib
 include_directories(${INCLUDE_DIRS})
 
 ##设置源文件
-file(GLOB SOURCE test/testVO.cpp
+file(GLOB SOURCE test
         src/myslam/camera.cpp
-        src/myslam/config.cpp
+#        src/myslam/config.cpp
         src/myslam/frame.cpp
         src/myslam/map.cpp
         src/myslam/mappoint.cpp
