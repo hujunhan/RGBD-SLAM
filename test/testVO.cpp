@@ -11,7 +11,6 @@
 #include "iostream"
 #include "fstream"
 #include "common_include.h"
-#include "myslam/camera.h"
 
 using namespace std;
 using namespace cv;
@@ -35,7 +34,7 @@ void pose_estimation_3d3d(
 );
 
 int main(void) {
-    myslam::Camera::Ptr camera(new myslam::Camera("../config.yaml"));
+//    myslam::Camera::Ptr camera(new myslam::Camera("../config.yaml"));
 
     YAML::Node config = YAML::LoadFile("../config.yaml");
     string dataset_path = config["test"]["dataset_path"].as<string>();
@@ -115,6 +114,10 @@ int main(void) {
 
         }
         Mat R, t;
+//        Mat r1,t1;
+//        solvePnPRansac(pts1,pts2,K,Mat(),r1,t1,false);
+//        Mat R1;
+//        cv::Rodrigues(r1, R1); // r为旋转向量形式，用Rodrigues公式转换为矩阵
         pose_estimation_3d3d(pts1, pts2, R, t);
         Eigen::Matrix3d R_e;
         R_e << R.at<double>(0, 0), R.at<double>(0, 1), R.at<double>(0, 2),
@@ -197,7 +200,7 @@ void find_feature_matches(const Mat &img_1, const Mat &img_2,
 //    printf("-- Min dist : %f \n", min_dist);
     //当描述子之间的距离大于两倍的最小距离时,即认为匹配有误.但有时候最小距离会非常小,设置一个经验值30作为下限.
     for (int i = 0; i < descriptors_1.rows; i++) {
-        if (match[i].distance <= max(3 * min_dist, 30.0)) {
+        if (match[i].distance <= max(2 * min_dist, 30.0)) {
             matches.push_back(match[i]);
         }
     }

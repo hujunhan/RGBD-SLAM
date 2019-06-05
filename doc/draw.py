@@ -9,6 +9,18 @@ path=cfg["test"]["dataset_path"]
 print("This is the trajectory for data in "+path)
 
 f = open(path+"traj.txt")
+try:
+    truex=[]
+    truey=[]
+    truth=open(path+"groundtruth.txt")
+    for line in truth:
+        data=line.split()
+        truex.append(float(data[1]))
+        truey.append(float(data[2]))
+        ex=plt.subplot(211)
+    plt.plot(truey,truex)
+except:
+    pass
 x = []
 y = []
 z = []
@@ -18,7 +30,7 @@ for line in f:
     data = line.split()
     x.append( float(data[0] ) )
     y.append( float(data[1] ) )
-    # z.append( float(data[2] ) )
-ax = plt.subplot()
-ax.plot(x,y)
+    z.append( float(data[2] ) )
+ax = plt.subplot(212)
+plt.plot(x,z)
 plt.show()

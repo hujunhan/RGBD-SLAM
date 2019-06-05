@@ -17,7 +17,7 @@ int main(void) try {
     //使用BRG8才能显示正常的颜色，因为OpenCV就是这样规定显示的
     cfg.enable_stream(RS2_STREAM_COLOR, 640, 480, RS2_FORMAT_BGR8, 30);
     cfg.enable_stream(RS2_STREAM_DEPTH, 640, 480, RS2_FORMAT_Z16, 30);
-
+    rs2::align align_to_color(RS2_STREAM_COLOR);
     auto profile = p.start(cfg);
 
     auto sensor = profile.get_device().first<rs2::depth_sensor>();
@@ -47,9 +47,8 @@ int main(void) try {
     int count=0;
     while (true)
     {
-        if(++count==100)
-            break;
         frames = p.wait_for_frames();
+        frames = align_to_color.process(frames);
         auto depth = frames.get_depth_frame();
         auto color = frames.get_color_frame();
         Mat color_image(Size(w, h), CV_8UC3, (void *) color.get_data(), Mat::AUTO_STEP);

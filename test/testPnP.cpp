@@ -58,10 +58,10 @@ int main(void) {
     }
     vector<SE3<double>> tj;
     Eigen::Matrix<double, 3, 3> R;
-    R  << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+    R << 1, 0, 0, 0, 1, 0, 0, 0, 1;
     cout << "R: " << endl << R << endl;
     Eigen::Matrix<double, 3, 1> t;
-    t  << 0, 0, 0;
+    t << 0, 0, 0;
     cout << "t: " << endl << t << endl;
     Sophus::SE3<double> SE3_Rt(R, t);   // Create Sophus SE3 from R and t
     tj.push_back(SE3_Rt);
@@ -80,7 +80,8 @@ int main(void) {
     //防止溢出
     if (data_size > depth_file.size())
         data_size = depth_file.size();
-    for (size_t i = 160; i < (data_size - 1); i++) {
+
+    for (size_t i = 0; i < (data_size - 1); i++) {
 //       cout << "The " << i + 1 << " image path is " << depth_file[i] << endl;
 
         //load all the image we need
@@ -113,19 +114,24 @@ int main(void) {
 
 
         Mat r, t;
-        solvePnP(pts_3d, pts_2d, K, Mat(), r, t, false); // 调用OpenCV 的 PnP 求解，可选择EPNP，DLS等方法
+        solvePnPRansac(pts_3d, pts_2d, K, Mat(), r, t, false); // 调用OpenCV 的 PnP 求解，可选择EPNP，DLS等方法
+//        solvePnP(pts_3d, pts_2d, K, Mat(), r, t, false,SOLVEPNP_EPNP); // 调用OpenCV 的 PnP 求解，可选择EPNP，DLS等方法
         Mat R;
         cv::Rodrigues(r, R); // r为旋转向量形式，用Rodrigues公式转换为矩阵
-//        Eigen::Matrix3d R_e;
-//        R_e << R.at<double>(0, 0), R.at<double>(0, 1), R.at<double>(0, 2),
-//                R.at<double>(1, 0), R.at<double>(1, 1), R.at<double>(1, 2),
-//                R.at<double>(2, 0), R.at<double>(2, 1), R.at<double>(2, 2);
-//        Sophus::SO3<double> SO3_R(R_e);
-//        auto T=Sophus::SE3<double>(
-//                SO3_R,
-//                Vector3d(t.at<double>(0,0),t.at<double>(0,1),t.at<double>(0,2)));
-//        tj.push_back(tj.back()*T);
-        t_traj.push_back(t + t_traj.back());
+        Eigen::Matrix3d R_e;
+        R_e << R.at<double>(0, 0), R.at<double>(0, 1), R.at<double>(0, 2),
+                R.at<double>(1, 0), R.at<double>(1, 1), R.at<double>(1, 2),
+                R.at<double>(2, 0), R.at<double>(2, 1), R.at<double>(2, 2);
+        Sophus::SO3<double> SO3_R(R_e);
+        auto T = Sophus::SE3<double>(
+                SO3_R,
+                Vector3d(t.at<double>(0, 0), t.at<double>(0, 1), t.at<double>(0, 2)));
+        auto trans=T.translation();
+        auto x=trans.hypotNorm();
+        if(x>0.3)
+            continue;
+        tj.push_back(tj.back()*T);
+//        t_traj.push_back(t + t_traj.back());
     }
 //    GetLocalTime(&sys);
 //    stringstream a;
@@ -135,17 +141,20 @@ int main(void) {
 //    cout << a.str() << endl;
 //    cout << "done";
     fstream fout(dataset_path + "traj.txt", ios::app);
-    for (size_t i = 0; i < t_traj.size(); i++) {
-        auto m = t_traj[i];
-        double x = m.at<double>(0, 0);
-        double y = m.at<double>(0, 1);
+    for (size_t i = 0; i < tj.size(); i++) {
+//        auto m = t_traj[i];
+//        auto m = tj[i];
+//        double x = m.at<double>(0, 0);
+//        double y = m.at<double>(0, 1);
 //        double z = m.at<double>(0, 2);
 
 //        if((x*x+y*y+z*z)>0.1)
 //            continue;
-        fout << x<< "\t";
-        fout <<y << "\t";
+//        fout << x<< "\t";
+//        fout <<y << "\t";
 //        fout << 0 << "\t";
+        auto m = tj[i].translation();
+        fout << m.transpose() << "\t";
 
         fout << std::endl;
     }
@@ -193,7 +202,7 @@ void find_feature_matches(const Mat &img_1, const Mat &img_2,
 //    printf("-- Min dist : %f \n", min_dist);
     //当描述子之间的距离大于两倍的最小距离时,即认为匹配有误.但有时候最小距离会非常小,设置一个经验值30作为下限.
     for (int i = 0; i < descriptors_1.rows; i++) {
-        if (match[i].distance <= max(3 * min_dist, 30.0)) {
+        if (match[i].distance <= max(2 * min_dist, 30.0)) {
             matches.push_back(match[i]);
         }
     }
@@ -248,11 +257,6 @@ void pose_estimation_3d3d(
 //    cout << "V=" << V << endl;
 
     Eigen::Matrix3d R_ = U * (V.transpose());
-    R_(0, 2) = 0;
-    R_(1, 2) = 0;
-    R_(2, 2) = 1;
-    R_(2, 1) = 0;
-    R_(2, 0) = 0;
     Eigen::Vector3d t_ = Eigen::Vector3d(p1.x, p1.y, p1.z) - R_ * Eigen::Vector3d(p2.x, p2.y, p2.z);
 
     // convert to cv::Mat

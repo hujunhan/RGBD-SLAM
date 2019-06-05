@@ -39,7 +39,7 @@ file(GLOB LINK_DIRS ${CMAKE_CURRENT_LIST_DIR}/lib/realsense2.lib
 include_directories(${INCLUDE_DIRS})
 
 ##设置源文件
-file(GLOB SOURCE test
+file(GLOB SOURCE test/testPnP.cpp
         src/myslam/camera.cpp
 #        src/myslam/config.cpp
         src/myslam/frame.cpp
