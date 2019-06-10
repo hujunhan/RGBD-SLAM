@@ -4,6 +4,7 @@ cmake-build-debug/
 cmake-build-release/
 **/.idea/
 third-party/eigen/
+third-party/g2o
 data/
 .vs/
 *.json

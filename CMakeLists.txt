@@ -10,6 +10,16 @@ SET(CMAKE_BUILD_TYPE "Release")
 set(Tutorial_VERSION_MAJOR 1)
 set(Tutorial_VERSION_MINOR 0)
 
+LIST( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/third-party/g2o/cmake_modules )
+#set(G2O_ROOT ${CMAKE_CURRENT_LIST_DIR}/third-party/g2o/g2o)
+find_package(G2O REQUIRED)
+IF(G2O_FOUND)
+    include_directories(${G2O_INCLUDE_DIR})
+    message("G2O lib is found:" ${G2O_INCLUDE_DIR})
+else(G2O_FOUND)
+    message("not found")
+ENDIF(G2O_FOUND)
+
 # Using C++ 11
 set(CMAKE_CXX_STANDARD 11)
 
@@ -25,6 +35,7 @@ set(INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/eigen
         ${CMAKE_CURRENT_LIST_DIR}/third-party/sophus
         ${CMAKE_CURRENT_LIST_DIR}/third-party/ymal-cpp
+        ${G2O_INCLUDE_DIRS}/g2o/
         )
 
 
@@ -34,17 +45,17 @@ file(GLOB LINK_DIRS ${CMAKE_CURRENT_LIST_DIR}/lib/realsense2.lib
         ${CMAKE_CURRENT_LIST_DIR}/lib/opencv_world410.lib
         ${CMAKE_CURRENT_LIST_DIR}/lib/pthreadVC2.lib
         ${CMAKE_CURRENT_LIST_DIR}/lib/libyaml-cppmd.lib
+
         )
 # 添加头文件
 include_directories(${INCLUDE_DIRS})
-
 ##设置源文件
 file(GLOB SOURCE test/testPnP.cpp
-        src/myslam/camera.cpp
+#        src/myslam/camera.cpp
 #        src/myslam/config.cpp
-        src/myslam/frame.cpp
-        src/myslam/map.cpp
-        src/myslam/mappoint.cpp
+#        src/myslam/frame.cpp
+#        src/myslam/map.cpp
+#        src/myslam/mappoint.cpp
 #        src/myslam/visual_odometry.cpp
         )
 # 添加源文件
@@ -56,9 +67,12 @@ if (MSVC)
     set_target_properties(${PROJ_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_LIST_DIR}/bin)
     set_target_properties(${PROJ_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_LIST_DIR}/bin)
 endif (MSVC)
+SET(G2O_LIBS g2o_cli g2o_ext_freeglut_minimal g2o_simulator g2o_solver_slam2d_linear g2o_types_icp g2o_types_slam2d g2o_core g2o_interface g2o_solver_csparse g2o_solver_structure_only g2o_types_sba g2o_types_slam3d g2o_csparse_extension g2o_opengl_helper g2o_solver_dense g2o_stuff g2o_types_sclam2d g2o_parser g2o_solver_pcg g2o_types_data g2o_types_sim3 cxsparse )
+
 target_link_libraries(${PROJ_NAME} ${LINK_DIRS}
         glu32.lib
         opengl32.lib
         ${Sophus_LIBRARIES}
-        #        myslam
+#        ${G2O_LIBS}
+#        myslam
         )
