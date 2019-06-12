@@ -8,7 +8,6 @@ cfg = yaml.safe_load(yaml_file)
 path = cfg["test"]["dataset_path"]
 datasize = int(cfg["test"]["data_size"])
 print("This is the trajectory for data in " + path)
-
 f = open(path + "traj.txt")
 
 try:
@@ -25,7 +24,10 @@ try:
         data = line.split()
         truex.append(-(float(data[2]) - x0))
         truey.append((float(data[3]) - y0))
-
+        count+=1
+        if(count>11000):
+            break
+    plt.subplot(121)
     plt.plot(truey, truex, color='red', label='groundtruth')
 
 except:
@@ -41,6 +43,20 @@ for line in f:
     y.append(float(data[1]))
     z.append(-float(data[2]) * 100)
 plt.plot(x, z, color='black', label='estimation')
+plt.legend(loc='upper right')
+plt.title('Trajectory')
+length = []
+angle = []
+len_ang = open(path + "length&angle1.txt")
+for line in len_ang:
+    data = line.split()
+    length.append(float(data[0]))
+    angle.append(float(data[1]))
+x = [i for i in range(len(length))]
+plt.subplot(122)
+plt.plot(x, length, '.',markersize=1, color='red', label='speed')
+plt.plot(x, angle, '.',markersize=1, color='green', label='angle')
+plt.title('Angle and Speed Analysis')
 plt.legend(loc='upper right')
 
 plt.show()

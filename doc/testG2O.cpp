@@ -1,21 +1,19 @@
-//
-// Created by hu on 2019/6/5.
-//
 #include <iostream>
-#include <g2o/g2o/core/g2o_core_api.h>
-#include <g2o/g2o/core/base_vertex.h>
-#include <g2o/g2o/core/base_unary_edge.h>
-#include <g2o/g2o/core/block_solver.h>
-#include <g2o/g2o/core/optimization_algorithm_levenberg.h>
-#include <g2o/g2o/core/optimization_algorithm_gauss_newton.h>
-#include <g2o/g2o/core/optimization_algorithm_dogleg.h>
+#include <g2o/core/g2o_core_api.h>
+#include <g2o/core/base_vertex.h>
+#include <g2o/core/base_unary_edge.h>
+#include <g2o/core/block_solver.h>
+#include <g2o/core/optimization_algorithm_levenberg.h>
+#include <g2o/core/optimization_algorithm_gauss_newton.h>
+#include <g2o/core/optimization_algorithm_dogleg.h>
 #include <g2o/solvers/dense/linear_solver_dense.h>
 #include <Eigen/Core>
 #include <opencv2/core/core.hpp>
 #include <cmath>
 #include <chrono>
+
 using namespace std;
-//#include "g2o/types/slam3d/edge_se3.h"
+
 // 曲线模型的顶点，模板参数：优化变量维度和数据类型
 class CurveFittingVertex : public g2o::BaseVertex<3, Eigen::Vector3d> {
 public:
@@ -89,7 +87,6 @@ int main(int argc, char **argv) {
     typedef g2o::LinearSolverDense<BlockSolverType::PoseMatrixType> LinearSolverType; // 线性求解器类型
 
     // 梯度下降方法，可以从GN, LM, DogLeg 中选
-
     auto solver = new g2o::OptimizationAlgorithmGaussNewton(
             g2o::make_unique<BlockSolverType>(g2o::make_unique<LinearSolverType>()));
     g2o::SparseOptimizer optimizer;     // 图模型
@@ -126,3 +123,4 @@ int main(int argc, char **argv) {
     cout << "estimated model: " << abc_estimate.transpose() << endl;
 
     return 0;
+}

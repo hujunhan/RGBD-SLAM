@@ -5,6 +5,7 @@
 #ifndef RGBD_SLAM_DATA_H
 #define RGBD_SLAM_DATA_H
 
+
 #include "common_include.h"
 namespace myslam{
     namespace data{
@@ -28,13 +29,22 @@ namespace myslam{
         }
         void write_traj(string path,vector<SE3> tj)
         {
-            fstream fout(path + "traj.txt", ios::app);
+            ofstream fout(path + "traj.txt");
             for (size_t i = 0; i < tj.size(); i++) {
                 auto m = tj[i].translation();
                 fout << m.transpose() << endl;
             }
             fout.close();
         }
+
+        unsigned long getUTCtime(void)
+        {
+            microClock_type tp = chrono::time_point_cast<chrono::milliseconds>(chrono::system_clock::now());
+            auto milliseconds=tp.time_since_epoch().count();
+            return milliseconds;
+        }
+
+
     }
 }
 #endif //RGBD_SLAM_DATA_H

@@ -39,7 +39,9 @@ int main( int argc, char** argv ) {
     /********************萌萌的分割线*****************************/
     cout << "************我是分割线*************" << endl;
     // 对SE(3)操作大同小异
-    Eigen::Vector3d t(1, 0, 0);           // 沿X轴平移1
+    Eigen::Vector3d t(0, 0, 0);           // 沿X轴平移1
+    R = Eigen::AngleAxisd(3.1415926 / 6, Eigen::Vector3d(0, 0, 1)).toRotationMatrix();
+
     Sophus::SE3<double> SE3_Rt(R, t);           // 从R,t构造SE(3)
     Sophus::SE3<double> SE3_qt(q, t);            // 从q,t构造SE(3)
     cout << "SE3 from R,t= " << endl << SE3_Rt.log() << endl;
@@ -47,11 +49,14 @@ int main( int argc, char** argv ) {
     // 李代数se(3) 是一个六维向量，方便起见先typedef一下
     typedef Eigen::Matrix<double, 6, 1> Vector6d;
     Vector6d se3 = SE3_Rt.log();
-    cout << "se3 = " << se3.transpose() << endl;
+    auto rotate=SE3_Rt.matrix();
+    cout<<"rotate = "<<endl<<rotate<<endl;
+    cout<<"angle = "<<SE3_Rt.angleZ();
+//    cout << "se3 = " << se3.transpose() << endl;
     // 观察输出，会发现在Sophus中，se(3)的平移在前，旋转在后.
     // 同样的，有hat和vee两个算符
-    cout << "se3 hat = " << endl << Sophus::SE3<double>::hat(se3) << endl;
-    cout << "se3 hat vee = " << Sophus::SE3<double>::vee(Sophus::SE3<double>::hat(se3)).transpose() << endl;
+//    cout << "se3 hat = " << endl << Sophus::SE3<double>::hat(se3) << endl;
+//    cout << "se3 hat vee = " << Sophus::SE3<double>::vee(Sophus::SE3<double>::hat(se3)).transpose() << endl;
 
     // 最后，演示一下更新
 //    Vector6d update_se3; //更新量

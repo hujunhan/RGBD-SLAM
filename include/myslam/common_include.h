@@ -78,7 +78,8 @@ using cv::Mat;
 #include "yaml-cpp/yaml.h"
 
 
-// std 
+// std
+#include <chrono>
 #include <vector>
 #include <list>
 #include <memory>
@@ -88,6 +89,6 @@ using cv::Mat;
 #include <set>
 #include <unordered_map>
 #include <map>
-
+typedef std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> microClock_type;
 using namespace std; 
 #endif

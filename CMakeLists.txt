@@ -1,23 +1,20 @@
 cmake_minimum_required(VERSION 3.14)
 SET(PROJ_NAME "RGBD-SLAM")
 project(${PROJ_NAME})
-
 set(ThirdParty "${CMAKE_CURRENT_LIST_DIR}/third-party")
-
 SET(CMAKE_BUILD_TYPE "Release")
 
 # The version number.
 set(Tutorial_VERSION_MAJOR 1)
 set(Tutorial_VERSION_MINOR 0)
 
+#LIST( APPEND CMAKE_MODULE_PATH C:/Users/hu/PortableProgram/vcpkg/installed/x64-windows/share/)
 LIST( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/third-party/g2o/cmake_modules )
 #set(G2O_ROOT ${CMAKE_CURRENT_LIST_DIR}/third-party/g2o/g2o)
 find_package(G2O REQUIRED)
 IF(G2O_FOUND)
     include_directories(${G2O_INCLUDE_DIR})
     message("G2O lib is found:" ${G2O_INCLUDE_DIR})
-else(G2O_FOUND)
-    message("not found")
 ENDIF(G2O_FOUND)
 
 # Using C++ 11
@@ -50,7 +47,7 @@ file(GLOB LINK_DIRS ${CMAKE_CURRENT_LIST_DIR}/lib/realsense2.lib
 # 添加头文件
 include_directories(${INCLUDE_DIRS})
 ##设置源文件
-file(GLOB SOURCE test/testPnP.cpp
+file(GLOB SOURCE doc/testRtCons.cpp
 #        src/myslam/camera.cpp
 #        src/myslam/config.cpp
 #        src/myslam/frame.cpp
