@@ -41,7 +41,7 @@ for line in f:
     data = line.split()
     x.append(float(data[0]) * 100)
     y.append(float(data[1]))
-    z.append(-float(data[2]) * 100)
+    z.append(float(data[2]) * 100)
 plt.plot(x, z, color='black', label='estimation')
 plt.legend(loc='upper right')
 plt.title('Trajectory')

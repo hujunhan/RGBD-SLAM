@@ -37,7 +37,7 @@ for line in f:
     if line[0] == '#':
         continue
     data = line.split()
-    x.append(float(data[0]) * 100)
+    x.append(float(data[1]) * 100)
     y.append(float(data[1]))
     z.append(-float(data[2]) * 100)
 plt.plot(x, z, color='black', label='estimation')

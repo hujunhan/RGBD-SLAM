@@ -7,6 +7,7 @@
 #include "myslam/visual_odometry.h"
 #include "myslam/camera.h"
 #include "myslam/data.h"
+#include "iomanip"
 //#include "myslam/camera.h"
 
 using namespace std;
@@ -16,8 +17,8 @@ using namespace cv::datasets;
 
 int main(void) {
 //    myslam::Camera::Ptr camera(new myslam::Camera("../config.yaml"));
-    int window_h=800;
-    int window_w=800;
+    int window_h = 800;
+    int window_w = 800;
     YAML::Node config = YAML::LoadFile("../config.yaml");
     string dataset_path = config["test"]["dataset_path"].as<string>();
     rs2::pipeline p;
@@ -28,7 +29,7 @@ int main(void) {
     rs2::align align_to_color(RS2_STREAM_COLOR);
     auto profile = p.start(cfg);
     rs2::frameset frames;
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 30; i++) {
         //Wait for all configured streams to produce a frame
         frames = p.wait_for_frames();
     }
@@ -37,23 +38,28 @@ int main(void) {
     auto camera_ins = config["camera"][camera_name]["instrinsic"];
 
     vector<SE3> tj;
-    auto init_pose=myslam::camera::get_init_T();
+    auto init_pose = myslam::camera::get_init_T();
     tj.push_back(init_pose);
-
+    vector<Mat> r_save;
+    vector<Mat> t_save;
     //防止溢出
     frames = p.wait_for_frames();
     auto depth = frames.get_depth_frame();
     auto color = frames.get_color_frame();
     Mat img_1(Size(640, 480), CV_8UC3, (void *) color.get_data(), Mat::AUTO_STEP);
     Mat depth_1(Size(640, 480), CV_16UC1, (void *) depth.get_data(), Mat::AUTO_STEP);
-    int i=0;
+    int i = 0;
 
-    Mat traj_mat(window_h,window_w,CV_8UC3,Scalar(0,0,0));
-    int last_x=0.5*window_h;
-    int last_y=0.5*window_w;
-    namedWindow("Trajectory",WINDOW_AUTOSIZE);
-    vector<unsigned long> utc_time;
-    while(true) {
+    Mat traj_mat(window_h, window_w, CV_8UC3, Scalar(0, 0, 0));
+    int last_x = 0.5 * window_h;
+    int last_y = 0.5 * window_w;
+    namedWindow("Trajectory", WINDOW_AUTOSIZE);
+    Mat r, t;
+    Mat R;
+    vector<unsigned long long> utc_time;
+    FileStorage rfs(dataset_path + "r.yml", FileStorage::WRITE);
+    FileStorage tfs(dataset_path + "t.yml", FileStorage::WRITE);
+    while (true) {
         utc_time.push_back(myslam::data::getUTCtime());
         frames = p.wait_for_frames();
         frames = align_to_color.process(frames);
@@ -66,7 +72,7 @@ int main(void) {
         //ORB
         vector<KeyPoint> keypoints_1, keypoints_2;
         vector<DMatch> matches;
-        myslam::vo::find_feature_matches(img_1, img_2, keypoints_1, keypoints_2, matches)
+        myslam::vo::find_feature_matches(img_1, img_2, keypoints_1, keypoints_2, matches);
 //        cout<<"一共找到了"<<matches.size() <<"组匹配点"<<endl;
 
         //相机内参
@@ -92,15 +98,15 @@ int main(void) {
 //        cout<<i<<" average dd: "<<sumdd/match_count<<endl;
 
 
-        Mat r, t;
-        Mat R;
-        solvePnPRansac(pts_3d, pts_2d, K, Mat(), r, t, false);
+
+        solvePnPRansac(pts_3d, pts_2d, K, Mat(), r, t, true);
+        rfs << "r" + to_string(i) << r;
+        tfs << "t" + to_string(i) << t;
         cv::Rodrigues(r, R); // r为旋转向量形式，用Rodrigues公式转换为矩阵
 
-
-
-        auto T=myslam::camera::Rt2T(R,t);
-        auto length=myslam::camera::calc_t_length(t);
+        auto T = myslam::camera::Rt2T(R, t);
+//        auto T = myslam::camera::normalizeT(R, t);
+        auto length = myslam::camera::calc_t_length(t);
 
 
 
@@ -112,25 +118,30 @@ int main(void) {
 
         cout << i++ << " length:" << length << " angle:" << T.angleY() << " 3dpair:" << match_count << endl;
         tj.push_back(tj.back() * T);
-        auto current_point=tj.back().translation();
-        int cur_x=current_point[0]*100+0.5*window_h;
-        int cur_y=current_point[2]*100+0.5*window_w;
-        line(traj_mat,Point(last_x,last_y),Point(cur_x,cur_y),Scalar(0,0,255));
-        last_x=cur_x;
-        last_y=cur_y;
+        auto current_point = tj.back().translation();
+        int cur_x = current_point[0] * 100 + 0.5 * window_h;
+        int cur_y = current_point[2] * 100 + 0.5 * window_w;
+        line(traj_mat, Point(last_x, last_y), Point(cur_x, cur_y), Scalar(0, 0, 255));
+        last_x = cur_x;
+        last_y = cur_y;
         img_2.copyTo(img_1);
         depth_2.copyTo(depth_1);
-        imshow("Trajectory",traj_mat);
-        if(waitKey(1)=='q')
+        imshow("Trajectory", traj_mat);
+        if (waitKey(1) == 'q')
             break;
 
     }
 
-    fstream fout(dataset_path + "traj.txt", ios::app);
+    tfs.release();
+    rfs.release();
+
+    ofstream fout(dataset_path + "traj.txt");
     for (size_t i = 0; i < tj.size(); i++) {
         auto m = tj[i].translation();
-        fout << m.transpose() << endl;
+        fout << setiosflags(ios::fixed) << setprecision(3) << (utc_time[i] * 1.0 / 1000) << " ";
+        fout << setiosflags(ios::fixed) << setprecision(6) << m.transpose()[0] << " " << m.transpose()[2] << endl;
     }
+    fout.close();
 
 }
 

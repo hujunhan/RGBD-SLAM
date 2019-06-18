@@ -1,11 +1,10 @@
 test:
-  dataset_path: "../data/zjudataset_0609_01/" #at the end of the string
+  dataset_path: "../data/realtime/" #at the end of the string
   camera: realsense
-  data_size: 2800
+  data_size: 6000
 constrain:
   distance: 0.3
   angle: 0.05
-
 camera:
   realsense:
     instrinsic:

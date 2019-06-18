@@ -8,18 +8,21 @@ SET(CMAKE_BUILD_TYPE "Release")
 set(Tutorial_VERSION_MAJOR 1)
 set(Tutorial_VERSION_MINOR 0)
 
-#LIST( APPEND CMAKE_MODULE_PATH C:/Users/hu/PortableProgram/vcpkg/installed/x64-windows/share/)
-LIST( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/third-party/g2o/cmake_modules )
-#set(G2O_ROOT ${CMAKE_CURRENT_LIST_DIR}/third-party/g2o/g2o)
-find_package(G2O REQUIRED)
-IF(G2O_FOUND)
-    include_directories(${G2O_INCLUDE_DIR})
-    message("G2O lib is found:" ${G2O_INCLUDE_DIR})
-ENDIF(G2O_FOUND)
-
 # Using C++ 11
 set(CMAKE_CXX_STANDARD 11)
 
+
+#LIST( APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/third-party/g2o/cmake_modules )
+#set(G2O_ROOT ${CMAKE_CURRENT_LIST_DIR}/third-party/g2o/g2o)
+find_package(Ceres CONFIG REQUIRED)
+#find_package(G2O REQUIRED)
+#IF(G2O_FOUND)
+#    include_directories(${G2O_INCLUDE_DIR})
+#    message("G2O lib is found:" ${G2O_INCLUDE_DIR})
+#ENDIF(G2O_FOUND)
+#message(${G2O_INCLUDE_DIR})
+
+find_package(Eigen3 REQUIRED)
 # Using OpenCV and other third-party library
 set(INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
         ${CMAKE_CURRENT_LIST_DIR}/include/helper
@@ -29,7 +32,8 @@ set(INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
         ${CMAKE_CURRENT_LIST_DIR}/third-party/
         ${CMAKE_CURRENT_LIST_DIR}/third-party/pthread
         ${CMAKE_CURRENT_LIST_DIR}/third-party/opencv-4.1/
-        ${CMAKE_CURRENT_LIST_DIR}/third-party/eigen
+        ${EIGEN_INCLUDE_DIR}
+        ${CERES_INCLUDE_DIR}
         ${CMAKE_CURRENT_LIST_DIR}/third-party/sophus
         ${CMAKE_CURRENT_LIST_DIR}/third-party/ymal-cpp
         ${G2O_INCLUDE_DIRS}/g2o/
@@ -42,7 +46,6 @@ file(GLOB LINK_DIRS ${CMAKE_CURRENT_LIST_DIR}/lib/realsense2.lib
         ${CMAKE_CURRENT_LIST_DIR}/lib/opencv_world410.lib
         ${CMAKE_CURRENT_LIST_DIR}/lib/pthreadVC2.lib
         ${CMAKE_CURRENT_LIST_DIR}/lib/libyaml-cppmd.lib
-
         )
 # 添加头文件
 include_directories(${INCLUDE_DIRS})
@@ -70,6 +73,7 @@ target_link_libraries(${PROJ_NAME} ${LINK_DIRS}
         glu32.lib
         opengl32.lib
         ${Sophus_LIBRARIES}
+        ${CERES_LIBRARIES}
 #        ${G2O_LIBS}
 #        myslam
         )

@@ -21,11 +21,7 @@ using namespace cv::datasets;
 std::vector<std::string> read_directory(const std::string &path);
 
 
-void pose_estimation_3d3d(
-        const vector<Point3f> &pts1,
-        const vector<Point3f> &pts2,
-        Mat &R, Mat &t
-);
+
 
 int main(void) {
 

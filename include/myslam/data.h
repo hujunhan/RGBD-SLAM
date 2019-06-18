@@ -7,15 +7,18 @@
 
 
 #include "common_include.h"
-namespace myslam{
-    namespace data{
-        void read_info(string path,vector<string> &rgb_file,vector<string> &depth_file)
-        {
+#include "chrono"
+#include "sys/timeb.h"
+
+using namespace std::chrono;
+namespace myslam {
+    namespace data {
+        void read_info(string path, vector<string> &rgb_file, vector<string> &depth_file) {
             ifstream fin(path + "info.txt");
 
             if (!fin) {
                 cout << "please generate the associate file called info.txt!" << endl;
-                return ;
+                return;
             }
             while (!fin.eof()) {
                 string file_name;
@@ -27,8 +30,8 @@ namespace myslam{
             depth_file.pop_back();
             fin.close();
         }
-        void write_traj(string path,vector<SE3> tj)
-        {
+
+        void write_traj(string path, vector<SE3> tj) {
             ofstream fout(path + "traj.txt");
             for (size_t i = 0; i < tj.size(); i++) {
                 auto m = tj[i].translation();
@@ -37,11 +40,16 @@ namespace myslam{
             fout.close();
         }
 
-        unsigned long getUTCtime(void)
-        {
-            microClock_type tp = chrono::time_point_cast<chrono::milliseconds>(chrono::system_clock::now());
-            auto milliseconds=tp.time_since_epoch().count();
-            return milliseconds;
+        unsigned long long getUTCtime(void) {
+            unsigned long long microseconds_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::system_clock::now().time_since_epoch()).count();
+            struct timeb t1;
+            ftime(&t1);
+            auto second = t1.time;
+            auto milltm = t1.millitm;
+
+            return microseconds_since_epoch;
+
         }
 
 

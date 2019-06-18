@@ -24,10 +24,10 @@ namespace myslam {
         SE3 get_init_T(void) {
             Eigen::Matrix<double, 3, 3> R;
             R << 1, 0, 0, 0, 1, 0, 0, 0, 1;
-            cout << "R: " << endl << R << endl;
+//            cout << "R: " << endl << R << endl;
             Eigen::Matrix<double, 3, 1> t;
             t << 0, 0, 0;
-            cout << "t: " << endl << t << endl;
+//            cout << "t: " << endl << t << endl;
             Sophus::SE3<double> SE3_Rt(R, t);   // Create Sophus SE3 from R and t
             return SE3_Rt;
         }
@@ -69,7 +69,7 @@ namespace myslam {
                 auto eigent = Vec3(x, y, z);
                 if (length > 0.01) {
                     eigent.normalize();
-                    eigent = eigent * 0.01;
+                    eigent = eigent * 0.02;
                 }
                 t.at<double>(0, 0) = eigent[0];
                 t.at<double>(0, 1) = eigent[1];
@@ -79,8 +79,12 @@ namespace myslam {
                 Sophus::SE3<double> SE3_Rt(R, eigent);
                 return SE3_Rt;
             } else {
+                if(abs(angle)<0.01)
+                    angle=angle/2;
                 if (abs(angle) < 0.02)
-                    angle = angle * 0.5;
+                    angle = angle * 1;
+                else
+                    angle=angle/2;
                 auto R = Eigen::AngleAxisd(angle, Eigen::Vector3d(0, 1, 0)).toRotationMatrix();
                 t.at<double>(0, 0) = 0;
                 t.at<double>(0, 1) = 0;

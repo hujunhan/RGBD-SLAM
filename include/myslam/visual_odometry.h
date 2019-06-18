@@ -7,6 +7,11 @@
 
 #include "opencv2/opencv.hpp"
 #include <opencv2/core.hpp>
+#include "opencv2/video/tracking.hpp"
+#include "opencv2/imgproc.hpp"
+#include "opencv2/videoio.hpp"
+#include "opencv2/highgui.hpp"
+#include<opencv2/imgproc/imgproc.hpp>
 
 using namespace cv;
 namespace myslam {
@@ -42,31 +47,32 @@ namespace myslam {
             vector <DMatch> match;
             // BFMatcher matcher ( NORM_HAMMING );
             matcher->match(descriptors_1, descriptors_2, match);
-//            sort(match.begin(),match.end(),compareD);
-//            for (int i=0;i<match.size() ;i++)
-//            {
-//                matches.push_back(match[i]);
-//            }
+            sort(match.begin(),match.end(),compareD);
+            for (int i=0;i<100 ;i++)
+            {
+                matches.push_back(match[i]);
+            }
+//            cout<<matches.size()<<endl;
             //-- 第四步:匹配点对筛选
-            double min_dist = 10000, max_dist = 0;
-
-//            找出所有匹配之间的最小距离和最大距离, 即是最相似的和最不相似的两组点之间的距离
-            for (int i = 0; i < descriptors_1.rows; i++) {
-                double dist = match[i].distance;
-                if (dist < min_dist) min_dist = dist;
-                if (dist > max_dist) max_dist = dist;
-            }
-
-//    printf("-- Max dist : %f \n", max_dist);
-//    printf("-- Min dist : %f \n", min_dist);
-//            当描述子之间的距离大于两倍的最小距离时,即认为匹配有误.但有时候最小距离会非常小,设置一个经验值30作为下限.
-            for (int i = 0; i < descriptors_1.rows; i++) {
-                if (match[i].distance <= max(2 * min_dist, 30.0)) {
-                    matches.push_back(match[i]);
-                }
-            }
-            Mat img_goodmatch;
-            drawMatches(img_1, keypoints_1, img_2, keypoints_2, matches, img_goodmatch);
+//            double min_dist = 10000, max_dist = 0;
+//
+////            找出所有匹配之间的最小距离和最大距离, 即是最相似的和最不相似的两组点之间的距离
+//            for (int i = 0; i < descriptors_1.rows; i++) {
+//                double dist = match[i].distance;
+//                if (dist < min_dist) min_dist = dist;
+//                if (dist > max_dist) max_dist = dist;
+//            }
+//
+////    printf("-- Max dist : %f \n", max_dist);
+////    printf("-- Min dist : %f \n", min_dist);
+////            当描述子之间的距离大于两倍的最小距离时,即认为匹配有误.但有时候最小距离会非常小,设置一个经验值30作为下限.
+//            for (int i = 0; i < descriptors_1.rows; i++) {
+//                if (match[i].distance <= max(2 * min_dist, 30.0)) {
+//                    matches.push_back(match[i]);
+//                }
+//            }
+//            Mat img_goodmatch;
+//            drawMatches(img_1, keypoints_1, img_2, keypoints_2, matches, img_goodmatch);
 //            imshow("matchers", img_goodmatch);
 //            if(waitKey(0)=='q')
 //                return;

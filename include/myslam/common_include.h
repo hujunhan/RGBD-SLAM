@@ -89,6 +89,6 @@ using cv::Mat;
 #include <set>
 #include <unordered_map>
 #include <map>
-typedef std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds> microClock_type;
+#include "time.h"
 using namespace std; 
 #endif
